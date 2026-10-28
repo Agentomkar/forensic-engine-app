@@ -1,0 +1,19 @@
+# One-click deploy on Render (https://render.com): New > Blueprint > pick this repo.
+# The Android app talks to this service at /api/v1/scan.
+services:
+  - type: web
+    name: feia-api
+    runtime: docker
+    plan: free            # free tier sleeps after ~15 min idle; first scan then takes ~1 min. Use "starter" for the demo.
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PUBLIC_MODE
+        value: "1"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEVELOPER_NAME
+        sync: false       # you will be asked for this on first deploy
+      - key: CONTACT_EMAIL
+        sync: false
+      - key: VT_API_KEY   # optional: real VirusTotal reputation lookups
+        sync: false

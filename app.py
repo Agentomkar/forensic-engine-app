@@ -22,7 +22,7 @@ import train_model
 from agent_core import ForensicInvestigationAgent
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'soc_forensics_secret_key_v3'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or os.urandom(32).hex()
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max upload
 
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
@@ -41,6 +41,18 @@ sniff_stop_event = None
 # Initialize AI Forensic Investigation Agent
 forensic_agent = ForensicInvestigationAgent()
 investigations_cache = {}
+
+# ------------------------------------------------------------------------------
+# PUBLIC_MODE: set PUBLIC_MODE=1 when the server is reachable from the internet
+# (required for the Android app). It disables routes that only make sense on an
+# analyst's own machine or that would expose/destroy other users' data.
+# ------------------------------------------------------------------------------
+PUBLIC_MODE = os.environ.get('PUBLIC_MODE', '0') == '1'
+LOCAL_ONLY_PREFIXES = (
+    '/api/history', '/api/sniff', '/api/retrain', '/api/analyze/imap',
+    '/api/analyze/password', '/api/investigations', '/api/dashboard/stats',
+    '/api/report', '/api/agent/report', '/api/agent/investigation',
+)
 
 def load_or_train_models():
     """Ensure models are trained and loaded into memory on startup along with SHAP Explainers."""
@@ -72,6 +84,11 @@ def load_or_train_models():
         print(f"SHAP explainer init note: {e}")
         if url_model and email_model:
             forensic_agent.set_models(url_model, email_model, None, None)
+
+@app.before_request
+def block_local_only_routes_in_public_mode():
+    if PUBLIC_MODE and request.path.startswith(LOCAL_ONLY_PREFIXES):
+        return jsonify({'error': 'This endpoint is disabled on the public server.'}), 403
 
 @app.before_request
 def ensure_models_loaded():
@@ -646,6 +663,10 @@ def save_real_investigation(record):
         record['time_ago'] = 'Just now'
     if 'status' not in record or not record['status']:
         record['status'] = 'Completed'
+
+    if PUBLIC_MODE:
+        # Never persist one visitor's evidence where other visitors can read it.
+        return record
 
     with investigations_lock:
         records = []
@@ -1453,5 +1474,11 @@ def analyze_imap():
             
     return jsonify({'status': 'success', 'results': scored_emails})
 
+from mobile_api import mobile_bp, init_mobile_api
+init_mobile_api(forensic_agent, lambda: (url_model is None or email_model is None) and load_or_train_models())
+app.register_blueprint(mobile_bp)
+
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)
+    debug = os.environ.get('FLASK_DEBUG', '0') == '1'
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=debug, allow_unsafe_werkzeug=debug)

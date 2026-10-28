@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FEIA Scam Check – Privacy Policy</title>
+<style>
+  :root { --bg:#ffffff; --fg:#1b1f24; --muted:#5b6470; --accent:#0b6e4f; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1316; --fg:#e6e9ec; --muted:#9aa4ae; --accent:#4cc79a; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  main { max-width:720px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:1.6rem; margin:0 0 4px; } h2 { font-size:1.15rem; margin-top:2rem; }
+  .muted { color:var(--muted); } a { color:var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<h1>Privacy Policy</h1>
+<p class="muted">FEIA Scam Check (Android app) · Effective 28 October 2026</p>
+
+<p>FEIA Scam Check helps you decide whether a link, SMS, WhatsApp message or email is a phishing or fraud attempt.
+This page explains exactly what happens to what you submit.</p>
+
+<h2>What the app collects</h2>
+<p>Only the content you choose to scan: a link, a message you paste or share into the app, or an email file (.eml) you pick.
+The app does <strong>not</strong> read your SMS inbox, contacts, call logs, location, browsing history, photos or accounts,
+and it requests no Android permissions other than internet access.</p>
+
+<h2>How it is used</h2>
+<p>Your submission is sent over HTTPS to our analysis server, examined by the FEIA engine (machine-learning classifiers and
+rule-based forensic checks), and the verdict is returned to your phone. Submissions are processed in memory and are
+<strong>not stored</strong> on the server, not added to any database, and not used to train models.</p>
+<p>If the server operator has enabled VirusTotal reputation lookups, links found in your submission (not the surrounding
+message text) are sent to VirusTotal to check their reputation, under
+<a href="https://www.virustotal.com/gui/terms-of-service" rel="noopener">VirusTotal's terms</a>.</p>
+<p>Standard web-server logs (IP address, time, request size) may be kept for up to 7 days for abuse prevention and rate limiting.</p>
+
+<h2>On your device</h2>
+<p>Your last 20 scan results are kept on your phone only, so you can review them. You can delete them at any time from
+the History screen, or by uninstalling the app.</p>
+
+<h2>Sharing</h2>
+<p>We do not sell, rent or share your data with advertisers or data brokers. The app contains no ads and no third-party
+analytics or tracking SDKs.</p>
+
+<h2 id="deletion">Data deletion</h2>
+<p>Because submissions are not stored on the server, there is no server-side account or record to delete. On-device history
+is deleted from the History screen. For any question, email the developer at the address below.</p>
+
+<h2>Not a substitute for official help</h2>
+<p>Verdicts are automated assessments and can be wrong. If you have lost money, report it immediately at
+<a href="https://cybercrime.gov.in" rel="noopener">cybercrime.gov.in</a> or call the national helpline <strong>1930</strong>.</p>
+
+<h2>Children</h2>
+<p>The app is not directed at children under 13 and does not knowingly collect their data.</p>
+
+<h2>Contact</h2>
+<p>Developer: {{ developer_name }}<br>Email: <a href="mailto:{{ contact_email }}">{{ contact_email }}</a></p>
+</main>
+</body>
+</html>
