@@ -8,6 +8,8 @@
 [![MITRE ATT&CK](https://img.shields.io/badge/Security-MITRE%20ATT%26CK%20Aligned-E63946.svg?style=flat)](https://attack.mitre.org)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
+> **Android app:** the Play Store client ("FEIA Scam Check") lives in [`mobile/`](mobile/). Build, deploy and publishing steps are in [PLAYSTORE.md](PLAYSTORE.md).
+
 ---
 
 ## 1. Project Overview

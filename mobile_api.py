@@ -289,7 +289,7 @@ def scan():
                                  'the link, or the raw email (with headers).'
                     }), 422
     except Exception as e:  # never leak a stack trace to the phone
-        print(f'[mobile_api] investigation failed: {e}')
+        print(f'[mobile_api] investigation failed: {type(e).__name__}')  # never log user text
         return jsonify({'error': 'The analysis engine failed on this input. Please try again.'}), 500
 
     return jsonify(_slim(report))
