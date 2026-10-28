@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https:">
+<meta name="color-scheme" content="light dark">
+<title>FEIA Scam Check</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- CHECK -->
+  <section class="screen" id="screen-check" aria-labelledby="h-check">
+    <header class="top">
+      <h1 id="h-check">Is this a scam?</h1>
+      <p class="lede">Paste a link, an SMS or WhatsApp message, or a whole email. You can also share a message straight into this app.</p>
+    </header>
+
+    <label class="field-label" for="input">Message or link</label>
+    <textarea id="input" rows="7" spellcheck="false" autocapitalize="off"
+      placeholder="Dear customer, your KYC has expired. Update now: http://…"></textarea>
+
+    <div class="row">
+      <button class="btn ghost" id="btn-paste" type="button">Paste</button>
+      <label class="btn ghost" for="file">Open email file</label>
+      <input id="file" type="file" accept=".eml,message/rfc822,text/plain" hidden>
+      <button class="btn ghost" id="btn-clear" type="button" hidden>Clear</button>
+    </div>
+    <p class="file-chip" id="file-chip" hidden></p>
+
+    <button class="btn primary" id="btn-check" type="button">Check it</button>
+    <p class="hint" id="check-hint" role="status" aria-live="polite"></p>
+
+    <details class="examples">
+      <summary>Try an example</summary>
+      <button class="example" type="button" data-example="Dear SBI customer, your KYC has expired and your account will be blocked within 24 hours. Update immediately: http://sbi-kyc-update.top/verify">Fake bank KYC SMS</button>
+      <button class="example" type="button" data-example="Your electricity connection will be disconnected tonight at 9:30 pm because last month's bill was not updated. Call officer 98XXXXXX21 or pay at http://bescom-billpay.xyz/pay">Power bill threat</button>
+      <button class="example" type="button" data-example="https://www.onlinesbi.sbi">Real SBI website</button>
+    </details>
+  </section>
+
+  <!-- RESULT -->
+  <section class="screen" id="screen-result" hidden aria-labelledby="verdict-word">
+    <button class="back" id="btn-back" type="button" aria-label="Back to check">Back</button>
+    <div class="verdict" id="verdict">
+      <p class="verdict-word" id="verdict-word"></p>
+      <p class="verdict-sub" id="verdict-sub"></p>
+      <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
+      <p class="verdict-meta" id="verdict-meta"></p>
+    </div>
+
+    <p class="offline-note" id="offline-note" hidden>
+      Offline quick check. The full analysis engine couldn't be reached, so this result comes from simple rules on your phone and is less reliable.
+      <button class="linkish" id="btn-retry" type="button">Try the full check again</button>
+    </p>
+
+    <h2>What we found</h2>
+    <ul class="findings" id="findings"></ul>
+
+    <h2>What to do now</h2>
+    <ol class="steps" id="steps"></ol>
+
+    <details class="tech" id="tech">
+      <summary>Technical evidence</summary>
+      <div id="tech-body"></div>
+    </details>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="screen" id="screen-history" hidden aria-labelledby="h-history">
+    <header class="top">
+      <h1 id="h-history">History</h1>
+      <p class="lede">Your last 20 checks. They stay on this phone only.</p>
+    </header>
+    <ul class="history" id="history-list"></ul>
+    <p class="empty" id="history-empty">Nothing checked yet. Results you check will appear here.</p>
+    <button class="btn ghost danger-text" id="btn-clear-history" type="button" hidden>Delete history</button>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="screen" id="screen-about" hidden aria-labelledby="h-about">
+    <header class="top">
+      <h1 id="h-about">About</h1>
+    </header>
+    <div class="prose">
+      <p>FEIA Scam Check is the mobile client of the Forensic Evidence Intelligence Agent, a final-year project that investigates suspicious links, messages and emails with machine-learning classifiers and forensic checks such as SPF, DKIM and sender spoofing.</p>
+      <p>Lost money or shared an OTP? Report it right away. Speed matters for getting money frozen.</p>
+      <div class="row">
+        <a class="btn primary" href="tel:1930">Call 1930</a>
+        <a class="btn ghost" href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in</a>
+      </div>
+      <p class="small">Results are automated and can be wrong. The app never reads your SMS inbox, contacts or accounts. It only sees what you choose to check.</p>
+      <p><a id="privacy-link" href="#" target="_blank" rel="noopener">Privacy policy</a></p>
+      <p class="small" id="version"></p>
+    </div>
+  </section>
+
+</div>
+
+<nav class="tabs" aria-label="Main">
+  <button class="tab" data-tab="check" aria-current="page" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 4.2 12.6l4.1 4.1 1.4-1.4-4.1-4.1A7 7 0 0 0 11 4zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg>
+    Check</button>
+  <button class="tab" data-tab="history" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 0 0-9 9H1l4 4 4-4H6a7 7 0 1 1 2.1 5l-1.4 1.4A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-3.5-2.1V8H12z"/></svg>
+    History</button>
+  <button class="tab" data-tab="about" type="button">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+    About</button>
+</nav>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

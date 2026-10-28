@@ -1,0 +1,13 @@
+{
+  "appId": "io.github.agentomkar.feia",
+  "appName": "FEIA Scam Check",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

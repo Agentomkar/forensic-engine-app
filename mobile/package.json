@@ -1,0 +1,22 @@
+{
+  "name": "feia-scam-check",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FEIA Scam Check - Android client for the Forensic Evidence Intelligence Agent",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --format=esm --minify --target=es2020 --outfile=www/js/app.js",
+    "sync": "npm run build && npx cap sync android",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/clipboard": "^8.0.1",
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/preferences": "^8.0.1",
+    "@fontsource-variable/archivo": "^5.3.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
+    "esbuild": "^0.28.2"
+  }
+}

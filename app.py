@@ -1481,4 +1481,7 @@ app.register_blueprint(mobile_bp)
 if __name__ == '__main__':
     debug = os.environ.get('FLASK_DEBUG', '0') == '1'
     port = int(os.environ.get('PORT', 5000))
-    socketio.run(app, host='0.0.0.0', port=port, debug=debug, allow_unsafe_werkzeug=debug)
+    # Local analyst use runs on Werkzeug; a public deployment must use gunicorn (see Dockerfile).
+    if PUBLIC_MODE and not debug:
+        print('PUBLIC_MODE: run behind gunicorn in production; starting Werkzeug for a local test only.')
+    socketio.run(app, host='0.0.0.0', port=port, debug=debug, allow_unsafe_werkzeug=True)

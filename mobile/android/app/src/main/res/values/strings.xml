@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FEIA Scam Check</string>
+    <string name="title_activity_main">FEIA Scam Check</string>
+    <string name="package_name">io.github.agentomkar.feia</string>
+    <string name="custom_url_scheme">io.github.agentomkar.feia</string>
+    <string name="share_label">Check for scam</string>
+</resources>
