@@ -1,8 +1,10 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { Clipboard } from '@capacitor/clipboard';
+import { Haptics, NotificationType, ImpactStyle } from '@capacitor/haptics';
 import { API_BASE } from './config.js';
-import { quickCheck } from './heuristics.js';
+import { quickCheck, findSpans } from './heuristics.js';
+import { plainFinding } from './plain.js';
 
 const ShareIntake = registerPlugin('ShareIntake');   // native: android/.../ShareIntakePlugin.java
 
@@ -20,6 +22,17 @@ const els = {
   verdict: $('verdict'), word: $('verdict-word'), sub: $('verdict-sub'), meter: $('meter-fill'), meta: $('verdict-meta'),
   offline: $('offline-note'), findings: $('findings'), steps: $('steps'), tech: $('tech'), techBody: $('tech-body'),
   historyList: $('history-list'), historyEmpty: $('history-empty'), clearHistory: $('btn-clear-history'),
+  bubbleWrap: $('bubble-wrap'), meterBar: $('meter'), readout: $('readout'), legend: $('legend'),
+  evidenceBlock: $('evidence-block'), dangerActions: $('danger-actions'),
+};
+
+const haptic = {
+  tap: () => Haptics.impact({ style: ImpactStyle.Light }).catch(() => {}),
+  verdict: (level) => {
+    const type = level === 'LOW' ? NotificationType.Success
+      : level === 'MEDIUM' || level === 'UNKNOWN' ? NotificationType.Warning : NotificationType.Error;
+    return Haptics.notification({ type }).catch(() => {});
+  },
 };
 
 let pickedFile = null;     // { name, text }
@@ -36,7 +49,9 @@ function show(name) {
   if (name === 'history') renderHistory();
   window.scrollTo(0, 0);
 }
-document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
+document.querySelectorAll('.tab, [data-goto]').forEach(t => t.addEventListener('click', () => {
+  haptic.tap(); show(t.dataset.tab || t.dataset.goto);
+}));
 els.back.addEventListener('click', () => show('check'));
 
 /* ---------------------------------------------------------------- input */
@@ -73,7 +88,7 @@ document.querySelectorAll('.example').forEach(b => b.addEventListener('click', (
   runCheck();
 }));
 
-els.check.addEventListener('click', runCheck);
+els.check.addEventListener('click', () => { haptic.tap(); runCheck(); });
 els.retry.addEventListener('click', () => lastSubmission && runCheck(lastSubmission));
 
 /* ---------------------------------------------------------------- check */
@@ -104,10 +119,26 @@ async function runCheck(resubmit) {
   }
 }
 
+const STAGES = ['Reading the message', 'Checking the links', 'Looking for pressure tactics', 'Weighing the evidence'];
+let stageTimer = null;
 function setBusy(on) {
   els.check.disabled = on;
-  els.check.innerHTML = on ? '<span class="spinner" aria-hidden="true"></span>Checking…' : 'Check it';
-  if (on) els.hint.textContent = '';
+  els.bubbleWrap.classList.toggle('scanning', on);
+  els.input.readOnly = on;
+  clearInterval(stageTimer);
+  if (on) {
+    els.hint.textContent = '';
+    let i = 0;
+    const paint = () => {
+      els.check.innerHTML = `<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="cta-label"></span>`;
+      els.check.querySelector('.cta-label').textContent = STAGES[i % STAGES.length] + '…';
+      i++;
+    };
+    paint();
+    stageTimer = setInterval(paint, 1400);
+  } else {
+    els.check.innerHTML = '<span class="cta-label">Check this message</span>';
+  }
 }
 
 async function callApi(sub) {
@@ -147,7 +178,7 @@ function fromServer(r, sub) {
     // On a risky verdict, show only the warning signs; low/benign items live in Technical evidence.
     .filter(e => level === 'LOW' || (e.detection_result !== 'Benign' && (SEV_RANK[e.severity] ?? 0) >= 2))
     .sort((a, b) => (SEV_RANK[b.severity] ?? 0) - (SEV_RANK[a.severity] ?? 0))
-    .map(e => ({ sev: e.severity || 'INFO', title: e.indicator, body: e.supporting_info }));
+    .map(e => ({ sev: e.severity || 'INFO', ...plainFinding(e.indicator, e.supporting_info) }));
   const seen = new Set();
   findings = findings.filter(f => !seen.has(f.title) && seen.add(f.title)).slice(0, 7);
   if (!findings.length) findings = [{ sev: 'INFO', title: 'No warning signs found', body: r.summary || '' }];
@@ -156,6 +187,7 @@ function fromServer(r, sub) {
     id: r.investigation_id || `local-${Date.now()}`,
     ts: Date.now(),
     preview: sub.file ? `Email file: ${sub.file.name}` : sub.text.slice(0, 160),
+    text: (sub.file ? sub.file.text : sub.text).slice(0, 4000),
     level, score: Math.round(Number(r.risk_score) || 0),
     confidence: r.confidence_score, offline: false,
     findings,
@@ -175,6 +207,7 @@ function fromOffline(q, sub) {
   return {
     id: `offline-${Date.now()}`, ts: Date.now(),
     preview: sub.file ? `Email file: ${sub.file.name}` : sub.text.slice(0, 160),
+    text: (sub.file ? sub.file.text : sub.text).slice(0, 4000),
     level: q.level, score: q.score, offline: true,
     findings: q.reasons.map(t => ({ sev: q.level === 'LOW' ? 'LOW' : q.level === 'UNKNOWN' ? 'INFO' : 'MEDIUM', title: t, body: '' })),
     tech: { offlineUrls: q.urls },
@@ -240,17 +273,50 @@ function renderResult(e) {
   }));
 
   const set = e.level === 'LOW' ? STEPS.safe : e.level === 'MEDIUM' || e.level === 'UNKNOWN' ? STEPS.caution : STEPS.danger;
-  els.steps.innerHTML = set.map(s => `<li>${s}</li>`).join('');   // static trusted strings only
+  els.steps.innerHTML = set.map(s => `<li><span>${s}</span></li>`).join('');   // static trusted strings only
 
+  els.dangerActions.hidden = !(e.level === 'HIGH' || e.level === 'CRITICAL');
+  renderReadout(e);
   renderTech(e);
   els.tech.open = false;
 
+  const lit = Math.max(1, Math.min(10, Math.ceil((e.score || 0) / 10)));
+  [...els.meterBar.children].forEach((seg, i) => { seg.classList.toggle('on', i < lit); seg.style.setProperty('--i', i); });
+
   show('result');
   els.verdict.classList.remove('enter');
-  els.meter.style.width = '0';
-  void els.verdict.offsetWidth;   // restart animation
+  void els.verdict.offsetWidth;   // restart the stamp animation
   els.verdict.classList.add('enter');
-  requestAnimationFrame(() => { els.meter.style.width = `${Math.max(3, e.score)}%`; });
+  setTimeout(() => haptic.verdict(e.level), 260);   // lands with the stamp
+}
+
+/** The user's own message, with the links and pressure words marked where they occur. */
+function renderReadout(e) {
+  const text = e.text || e.preview || '';
+  const isEmail = /^(received|return-path|from|subject|message-id|dkim-signature|delivered-to|mime-version):/im.test(text.slice(0, 400));
+  els.evidenceBlock.hidden = !text || isEmail;   // raw email headers are unreadable as a bubble
+  if (els.evidenceBlock.hidden) return;
+
+  const spans = findSpans(text);
+  const nodes = [];
+  let pos = 0;
+  for (const sp of spans) {
+    if (sp.start > pos) nodes.push(document.createTextNode(text.slice(pos, sp.start)));
+    const m = document.createElement('mark');
+    m.className = sp.kind;
+    m.textContent = text.slice(sp.start, sp.end);
+    nodes.push(m);
+    pos = sp.end;
+  }
+  if (pos < text.length) nodes.push(document.createTextNode(text.slice(pos)));
+  els.readout.replaceChildren(...nodes);
+  els.readout.classList.toggle('safe', e.level === 'LOW');
+
+  const kinds = new Set(spans.map(s => s.kind));
+  els.legend.hidden = kinds.size === 0;
+  els.legend.querySelector('.lg-link').hidden = !kinds.has('link');
+  els.legend.querySelector('.lg-pressure').hidden = !kinds.has('pressure');
+  els.legend.querySelector('.lg-link').textContent = e.level === 'LOW' ? 'Link checked' : 'Risky link';
 }
 
 function renderTech(e) {

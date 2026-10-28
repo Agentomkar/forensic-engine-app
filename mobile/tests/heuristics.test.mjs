@@ -18,3 +18,14 @@ test('OTP sharing request flagged', () => assert.notEqual(quickCheck('Please sha
 test('url extraction strips trailing punctuation', () => {
   assert.equal(extractUrls('go to example.com/a).')[0].href, 'http://example.com/a');
 });
+
+import { findSpans } from '../src/heuristics.js';
+test('spans mark link and pressure words without overlap', () => {
+  const t = 'Your KYC expired. Account blocked within 24 hours. Update: http://sbi-kyc.top/v';
+  const sp = findSpans(t);
+  const words = sp.map(x => t.slice(x.start, x.end));
+  assert.ok(words.includes('http://sbi-kyc.top/v'));
+  assert.ok(words.includes('KYC') && words.includes('blocked'));
+  for (let i = 1; i < sp.length; i++) assert.ok(sp[i].start >= sp[i - 1].end);
+});
+test('spans on plain text are empty', () => assert.equal(findSpans('see you at 5').length, 0));

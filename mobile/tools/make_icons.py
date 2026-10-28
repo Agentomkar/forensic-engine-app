@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RES = os.path.join(ROOT, 'android/app/src/main/res')
-NAVY, WHITE, RED, PAPER = (19, 32, 58), (255, 255, 255), (191, 36, 48), (237, 241, 245)
+NAVY, WHITE, RED, PAPER = (23, 18, 79), (255, 255, 255), (229, 36, 63), (238, 237, 248)
 SS = 4  # supersampling
 
 

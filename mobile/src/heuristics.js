@@ -98,3 +98,38 @@ export function quickCheck(text) {
   if (level === 'LOW' && !reasons.length) reasons.push('No common scam patterns found in the link.');
   return { level, score, reasons, urls: urls.map(u => u.href) };
 }
+
+// Phrases that show *why* a message is pressuring you. Used to highlight the
+// exact words inside the user's message on the result screen.
+const HIGHLIGHT_PHRASES = [
+  /\b(share|send|tell|give|forward)\b[^.\n]{0,25}\b(otp|pin|cvv|password|passcode)\b/gi,
+  /\b(blocked|suspended|deactivated|frozen|disconnected?|terminated|expired?)\b/gi,
+  /\b(within|in)\s*\d+\s*(hours?|hrs?|minutes?|mins?)\b/gi,
+  /\b(today|tonight)\b[^.\n]{0,20}\b(\d{1,2}[:.]\d{2}\s*(am|pm)?|\d{1,2}\s*(am|pm))/gi,
+  /\b(urgent(ly)?|immediately|last (date|chance)|final (notice|warning))\b/gi,
+  /\b(kyc|pan|aadhaa?r)\b/gi,
+  /\b(won|winner|lottery|lucky draw|cashback|reward points?|prize)\b/gi,
+  /\b(call|contact|whatsapp)\b[^.\n]{0,30}(\+?91[\s-]?)?[6-9]\d{9}\b/gi,
+  /\.apk\b|\b(anydesk|teamviewer|quick ?support|rustdesk)\b/gi,
+];
+
+/** Returns non-overlapping spans [{start, end, kind: 'link'|'pressure'}] sorted by start. */
+export function findSpans(text) {
+  const s = String(text);
+  const spans = [];
+  for (const m of s.matchAll(URL_RE)) {
+    const raw = m[1].replace(/[),.;!?]+$/, '');
+    spans.push({ start: m.index, end: m.index + raw.length, kind: 'link' });
+  }
+  for (const re of HIGHLIGHT_PHRASES) {
+    for (const m of s.matchAll(re)) spans.push({ start: m.index, end: m.index + m[0].length, kind: 'pressure' });
+  }
+  spans.sort((a, b) => a.start - b.start || (a.kind === 'link' ? -1 : 1));
+  const out = [];
+  for (const sp of spans) {
+    const last = out[out.length - 1];
+    if (last && sp.start < last.end) continue;   // links win over overlapping phrases
+    out.push(sp);
+  }
+  return out;
+}

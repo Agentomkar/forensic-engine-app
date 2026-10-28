@@ -6,62 +6,107 @@
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https:">
 <meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#17124F">
 <title>FEIA Scam Check</title>
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
 <div class="app">
 
-  <!-- CHECK -->
+  <!-- ============================== CHECK -->
   <section class="screen" id="screen-check" aria-labelledby="h-check">
-    <header class="top">
-      <h1 id="h-check">Is this a scam?</h1>
-      <p class="lede">Paste a link, an SMS or WhatsApp message, or a whole email. You can also share a message straight into this app.</p>
+    <header class="brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="3" y="5" width="26" height="19" rx="6" fill="currentColor"/>
+        <path d="M9 23l-1 6 7-5z" fill="currentColor"/>
+        <circle cx="14" cy="14" r="5" fill="none" stroke="var(--on-ink)" stroke-width="2.4"/>
+        <path d="M17.6 17.6l3.6 3.6" stroke="var(--on-ink)" stroke-width="2.8" stroke-linecap="round"/>
+        <circle cx="24" cy="10" r="2.3" fill="var(--scam)"/>
+      </svg>
+      <span class="brand-name">FEIA Scam Check</span>
     </header>
 
-    <label class="field-label" for="input">Message or link</label>
-    <textarea id="input" rows="7" spellcheck="false" autocapitalize="off"
-      placeholder="Dear customer, your KYC has expired. Update now: http://…"></textarea>
+    <h1 id="h-check" class="headline">Is this<br>a scam?</h1>
+    <p class="lede">Paste the message, or share it here from WhatsApp, SMS or email.</p>
 
-    <div class="row">
-      <button class="btn ghost" id="btn-paste" type="button">Paste</button>
-      <label class="btn ghost" for="file">Open email file</label>
-      <input id="file" type="file" accept=".eml,message/rfc822,text/plain" hidden>
-      <button class="btn ghost" id="btn-clear" type="button" hidden>Clear</button>
+    <div class="bubble-wrap" id="bubble-wrap">
+      <span class="bubble-from" aria-hidden="true">Unknown sender</span>
+      <div class="bubble composer">
+        <label class="sr-only" for="input">Message or link to check</label>
+        <textarea id="input" rows="6" spellcheck="false" autocapitalize="off"
+          placeholder="Dear customer, your KYC has expired. Update now: http://…"></textarea>
+        <p class="file-chip" id="file-chip" hidden></p>
+        <div class="lens" aria-hidden="true"><span></span></div>
+      </div>
     </div>
-    <p class="file-chip" id="file-chip" hidden></p>
 
-    <button class="btn primary" id="btn-check" type="button">Check it</button>
+    <div class="tools">
+      <button class="chip-btn" id="btn-paste" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6a1 1 0 0 1 1 1v1h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2V3a1 1 0 0 1 1-1zm0 2v2h6V4H9z"/></svg>
+        Paste</button>
+      <label class="chip-btn" for="file">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5zm2 1.4V19h14V6.4l-7 5-7-5zM6.2 5l5.8 4.2L17.8 5H6.2z"/></svg>
+        Email file</label>
+      <input id="file" type="file" accept=".eml,message/rfc822,text/plain" hidden>
+      <button class="chip-btn quiet" id="btn-clear" type="button" hidden>Clear</button>
+    </div>
+
+    <button class="cta" id="btn-check" type="button">
+      <span class="cta-label">Check this message</span>
+    </button>
     <p class="hint" id="check-hint" role="status" aria-live="polite"></p>
 
-    <details class="examples">
-      <summary>Try an example</summary>
-      <button class="example" type="button" data-example="Dear SBI customer, your KYC has expired and your account will be blocked within 24 hours. Update immediately: http://sbi-kyc-update.top/verify">Fake bank KYC SMS</button>
-      <button class="example" type="button" data-example="Your electricity connection will be disconnected tonight at 9:30 pm because last month's bill was not updated. Call officer 98XXXXXX21 or pay at http://bescom-billpay.xyz/pay">Power bill threat</button>
-      <button class="example" type="button" data-example="https://www.onlinesbi.sbi">Real SBI website</button>
-    </details>
+    <div class="examples" aria-label="Examples">
+      <p class="examples-title">Try an example</p>
+      <div class="example-row">
+        <button class="example" type="button" data-example="Dear SBI customer, your KYC has expired and your account will be blocked within 24 hours. Update immediately: http://sbi-kyc-update.top/verify">Fake bank KYC</button>
+        <button class="example" type="button" data-example="Dear consumer, your electricity connection will be disconnected tonight at 9:30 pm because last month's bill was not updated. Pay now at http://bescom-billpay.xyz/pay">Power bill threat</button>
+        <button class="example" type="button" data-example="https://www.onlinesbi.sbi">Real SBI site</button>
+      </div>
+    </div>
   </section>
 
-  <!-- RESULT -->
+  <!-- ============================== RESULT -->
   <section class="screen" id="screen-result" hidden aria-labelledby="verdict-word">
-    <button class="back" id="btn-back" type="button" aria-label="Back to check">Back</button>
+    <button class="back" id="btn-back" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>
+      New check</button>
+
     <div class="verdict" id="verdict">
-      <p class="verdict-word" id="verdict-word"></p>
+      <div class="stamp"><p class="verdict-word" id="verdict-word"></p></div>
       <p class="verdict-sub" id="verdict-sub"></p>
-      <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
+      <div class="meter" aria-hidden="true" id="meter">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
       <p class="verdict-meta" id="verdict-meta"></p>
+      <span id="meter-fill" hidden></span>
     </div>
 
     <p class="offline-note" id="offline-note" hidden>
-      Offline quick check. The full analysis engine couldn't be reached, so this result comes from simple rules on your phone and is less reliable.
-      <button class="linkish" id="btn-retry" type="button">Try the full check again</button>
+      <strong>Offline quick check.</strong> The analysis server couldn't be reached, so this comes from simple rules on your phone and is less reliable.
+      <button class="linkish" id="btn-retry" type="button">Run the full check again</button>
     </p>
+
+    <div class="evidence-block" id="evidence-block">
+      <h2>In your message</h2>
+      <div class="bubble readout" id="readout"></div>
+      <p class="legend" id="legend">
+        <span class="lg lg-link">Link checked</span>
+        <span class="lg lg-pressure">Pressure words</span>
+      </p>
+    </div>
 
     <h2>What we found</h2>
     <ul class="findings" id="findings"></ul>
 
     <h2>What to do now</h2>
     <ol class="steps" id="steps"></ol>
+    <div class="actions" id="danger-actions" hidden>
+      <a class="act act-primary" href="tel:1930">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+        Call 1930</a>
+      <a class="act" href="https://cybercrime.gov.in" target="_blank" rel="noopener">Report online</a>
+    </div>
 
     <details class="tech" id="tech">
       <summary>Technical evidence</summary>
@@ -69,30 +114,33 @@
     </details>
   </section>
 
-  <!-- HISTORY -->
+  <!-- ============================== HISTORY -->
   <section class="screen" id="screen-history" hidden aria-labelledby="h-history">
-    <header class="top">
-      <h1 id="h-history">History</h1>
-      <p class="lede">Your last 20 checks. They stay on this phone only.</p>
-    </header>
+    <h1 id="h-history" class="headline small">History</h1>
+    <p class="lede">Your last 20 checks. They stay on this phone.</p>
     <ul class="history" id="history-list"></ul>
-    <p class="empty" id="history-empty">Nothing checked yet. Results you check will appear here.</p>
-    <button class="btn ghost danger-text" id="btn-clear-history" type="button" hidden>Delete history</button>
+    <div class="empty" id="history-empty">
+      <p>Nothing checked yet.</p>
+      <button class="chip-btn" type="button" data-goto="check">Check a message</button>
+    </div>
+    <button class="chip-btn quiet danger-text" id="btn-clear-history" type="button" hidden>Delete history</button>
   </section>
 
-  <!-- ABOUT -->
+  <!-- ============================== ABOUT -->
   <section class="screen" id="screen-about" hidden aria-labelledby="h-about">
-    <header class="top">
-      <h1 id="h-about">About</h1>
-    </header>
+    <h1 id="h-about" class="headline small">Lost money?</h1>
+    <p class="lede">Act within the first hour. Banks can often freeze money that was moved recently.</p>
+    <div class="actions">
+      <a class="act act-primary" href="tel:1930">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>
+        Call 1930</a>
+      <a class="act" href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in</a>
+    </div>
+
+    <h2>About this app</h2>
     <div class="prose">
-      <p>FEIA Scam Check is the mobile client of the Forensic Evidence Intelligence Agent, a final-year project that investigates suspicious links, messages and emails with machine-learning classifiers and forensic checks such as SPF, DKIM and sender spoofing.</p>
-      <p>Lost money or shared an OTP? Report it right away. Speed matters for getting money frozen.</p>
-      <div class="row">
-        <a class="btn primary" href="tel:1930">Call 1930</a>
-        <a class="btn ghost" href="https://cybercrime.gov.in" target="_blank" rel="noopener">cybercrime.gov.in</a>
-      </div>
-      <p class="small">Results are automated and can be wrong. The app never reads your SMS inbox, contacts or accounts. It only sees what you choose to check.</p>
+      <p>FEIA Scam Check is the phone client of the Forensic Evidence Intelligence Agent, a cybersecurity project that investigates links, messages and emails with machine-learning classifiers and forensic checks such as SPF, DKIM and sender spoofing.</p>
+      <p>Results are automated and can be wrong. The app never reads your SMS inbox, contacts or accounts. It only sees what you choose to check.</p>
       <p><a id="privacy-link" href="#" target="_blank" rel="noopener">Privacy policy</a></p>
       <p class="small" id="version"></p>
     </div>
@@ -101,15 +149,17 @@
 </div>
 
 <nav class="tabs" aria-label="Main">
-  <button class="tab" data-tab="check" aria-current="page" type="button">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 4.2 12.6l4.1 4.1 1.4-1.4-4.1-4.1A7 7 0 0 0 11 4zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg>
-    Check</button>
-  <button class="tab" data-tab="history" type="button">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 0 0-9 9H1l4 4 4-4H6a7 7 0 1 1 2.1 5l-1.4 1.4A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-3.5-2.1V8H12z"/></svg>
-    History</button>
-  <button class="tab" data-tab="about" type="button">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-    About</button>
+  <div class="tabs-inner">
+    <button class="tab" data-tab="check" aria-current="page" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4a7 7 0 1 0 4.2 12.6l4.1 4.1 1.4-1.4-4.1-4.1A7 7 0 0 0 11 4zm0 2a5 5 0 1 1 0 10 5 5 0 0 1 0-10z"/></svg>
+      <span>Check</span></button>
+    <button class="tab" data-tab="history" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3a9 9 0 0 0-9 9H1l4 4 4-4H6a7 7 0 1 1 2.1 5l-1.4 1.4A9 9 0 1 0 13 3zm-1 5v5l4.3 2.5.7-1.2-3.5-2.1V8H12z"/></svg>
+      <span>History</span></button>
+    <button class="tab" data-tab="about" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3zm-1 5h2v6h-2V7zm0 8h2v2h-2v-2z"/></svg>
+      <span>Help</span></button>
+  </div>
 </nav>
 
 <script type="module" src="js/app.js"></script>
