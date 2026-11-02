@@ -396,3 +396,9 @@ button, input, textarea { font: inherit; color: inherit; }
   @keyframes drift { 50% { translate: 0 -6px; } }
 }
 @media (prefers-reduced-motion: reduce) { .scanning .lens span { animation: none; top: 40%; } }
+
+/* Desktop / Windows window: keep the column readable on wide screens */
+@media (min-width: 900px) {
+  .app { max-width: 680px; }
+  .dock { width: 440px; }
+}

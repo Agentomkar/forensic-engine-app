@@ -214,7 +214,7 @@ def _slim(report):
 def _cors(resp):
     # Capacitor serves the app from https://localhost on Android.
     origin = request.headers.get('Origin', '')
-    allowed = {'https://localhost', 'http://localhost', 'capacitor://localhost'}
+    allowed = {'https://localhost', 'http://localhost', 'capacitor://localhost', 'https://agentomkar.github.io'}
     extra = os.environ.get('MOBILE_ALLOWED_ORIGINS', '')
     allowed.update(o.strip() for o in extra.split(',') if o.strip())
     if origin in allowed:
